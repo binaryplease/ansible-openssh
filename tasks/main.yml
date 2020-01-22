@@ -1,0 +1,36 @@
+---
+# tasks file for ansible-openssh
+- name: Install necessary packages
+  pacman:
+    name:
+      - openssh
+    state: latest
+
+- name: Enable openssh on startup
+  systemd:
+    name: sshd
+    enabled: yes
+    masked: no
+
+- name: Start openssh
+  systemd:
+    state: started
+    name: sshd
+
+- name: Disable Password Authentication
+  lineinfile:
+     path: /etc/ssh/sshd_config
+     regexp: '^PasswordAuthentication'
+     line: "PasswordAuthentication no"
+     state: present
+     backup: yes
+
+- name: Disable Root Login
+  lineinfile:
+     path: /etc/ssh/sshd_config
+     regexp: '^PermitRootLogin'
+     line: "PermitRootLogin no"
+     state: present
+     backup: yes
+  notify:
+  - restart_ssh
